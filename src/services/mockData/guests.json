@@ -1,0 +1,56 @@
+[
+  {
+    "Id": 1,
+    "name": "John Smith",
+    "email": "john.smith@email.com",
+    "phone": "+1 (555) 123-4567",
+    "address": "123 Main St, New York, NY 10001",
+    "idNumber": "AB123456",
+    "bookingHistory": ["R001", "R005"]
+  },
+  {
+    "Id": 2,
+    "name": "Sarah Johnson",
+    "email": "sarah.johnson@email.com",
+    "phone": "+1 (555) 234-5678",
+    "address": "456 Oak Ave, Los Angeles, CA 90210",
+    "idNumber": "CD789012",
+    "bookingHistory": ["R002"]
+  },
+  {
+    "Id": 3,
+    "name": "Michael Brown",
+    "email": "michael.brown@email.com",
+    "phone": "+1 (555) 345-6789",
+    "address": "789 Pine St, Chicago, IL 60601",
+    "idNumber": "EF345678",
+    "bookingHistory": ["R003", "R006"]
+  },
+  {
+    "Id": 4,
+    "name": "Emily Davis",
+    "email": "emily.davis@email.com",
+    "phone": "+1 (555) 456-7890",
+    "address": "321 Elm St, Miami, FL 33101",
+    "idNumber": "GH901234",
+    "bookingHistory": ["R004"]
+  },
+  {
+    "Id": 5,
+    "name": "David Wilson",
+    "email": "david.wilson@email.com",
+    "phone": "+1 (555) 567-8901",
+    "address": "654 Maple Dr, Seattle, WA 98101",
+    "idNumber": "IJ567890",
+    "bookingHistory": []
+  },
+  {
+    "Id": 6,
+    "name": "Lisa Anderson",
+    "email": "lisa.anderson@email.com",
+    "phone": "+1 (555) 678-9012",
+    "address": "987 Cedar Ln, Boston, MA 02101",
+    "idNumber": "KL123456",
+    "bookingHistory": ["R007"]
+  }
+]

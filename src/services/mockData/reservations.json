@@ -1,0 +1,72 @@
+[
+  {
+    "Id": 1,
+    "guestId": "1",
+    "roomId": "2",
+    "checkIn": "2024-01-15",
+    "checkOut": "2024-01-18",
+    "totalAmount": 360,
+    "status": "confirmed",
+    "notes": "Late check-in requested"
+  },
+  {
+    "Id": 2,
+    "guestId": "2",
+    "roomId": "7",
+    "checkIn": "2024-01-16",
+    "checkOut": "2024-01-20",
+    "totalAmount": 1400,
+    "status": "checked-in",
+    "notes": "Anniversary celebration"
+  },
+  {
+    "Id": 3,
+    "guestId": "3",
+    "roomId": "5",
+    "checkIn": "2024-01-18",
+    "checkOut": "2024-01-22",
+    "totalAmount": 720,
+    "status": "confirmed",
+    "notes": "Business trip"
+  },
+  {
+    "Id": 4,
+    "guestId": "4",
+    "roomId": "1",
+    "checkIn": "2024-01-20",
+    "checkOut": "2024-01-23",
+    "totalAmount": 360,
+    "status": "pending",
+    "notes": "Dietary restrictions - vegetarian"
+  },
+  {
+    "Id": 5,
+    "guestId": "1",
+    "roomId": "4",
+    "checkIn": "2024-01-25",
+    "checkOut": "2024-01-28",
+    "totalAmount": 1050,
+    "status": "confirmed",
+    "notes": "VIP guest"
+  },
+  {
+    "Id": 6,
+    "guestId": "3",
+    "roomId": "8",
+    "checkIn": "2024-01-22",
+    "checkOut": "2024-01-25",
+    "totalAmount": 540,
+    "status": "confirmed",
+    "notes": "Ocean view requested"
+  },
+  {
+    "Id": 7,
+    "guestId": "6",
+    "roomId": "9",
+    "checkIn": "2024-01-19",
+    "checkOut": "2024-01-21",
+    "totalAmount": 240,
+    "status": "checked-out",
+    "notes": "Early checkout"
+  }
+]
