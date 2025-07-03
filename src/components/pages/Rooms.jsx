@@ -404,7 +404,7 @@ const handleMaintenanceToggle = async () => {
               </div>
 
 {/* Features */}
-              {(() => {
+{(() => {
                 // Handle both string (MultiPicklist from database) and array (mock data) formats
                 let featuresArray = [];
                 
@@ -438,7 +438,6 @@ const handleMaintenanceToggle = async () => {
                   </div>
                 );
               })()}
-              )}
 
               {/* Description */}
               {selectedRoom.description && (
