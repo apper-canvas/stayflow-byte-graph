@@ -83,12 +83,12 @@ const GuestsPage = () => {
       className="space-y-6"
     >
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+<div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 text-display">Guest Directory</h1>
           <p className="text-gray-600 mt-1">Manage guest profiles and booking history</p>
         </div>
-<Button variant="primary" icon="UserPlus" onClick={() => setShowModal(true)}>
+        <Button variant="primary" icon="UserPlus" onClick={() => setShowModal(true)}>
           Add New Guest
         </Button>
       </div>
@@ -149,9 +149,9 @@ const GuestsPage = () => {
               onViewProfile={handleViewProfile}
             />
           ))}
-        </div>
+</div>
       )}
-</motion.div>
+    </motion.div>
 
     {/* Add Guest Modal */}
     {showModal && (
