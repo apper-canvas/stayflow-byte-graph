@@ -56,9 +56,9 @@ const Reservations = () => {
     loadData();
   }, []);
 
-  const getGuestName = (guestId) => {
+const getGuestName = (guestId) => {
     const guest = guests.find(g => g.Id.toString() === guestId);
-    return guest ? guest.name : 'Unknown Guest';
+    return guest ? guest.Name : 'Unknown Guest';
   };
 
   const getRoomNumber = (roomId) => {
@@ -141,13 +141,15 @@ const Reservations = () => {
     try {
       setSubmitting(true);
       
-      const newReservation = {
-        ...formData,
-        guestId: formData.guestId.toString(),
-        roomId: formData.roomId.toString(),
-        totalAmount: parseFloat(formData.totalAmount),
+const newReservation = {
+        guest_id: parseInt(formData.guestId),
+        room_id: parseInt(formData.roomId),
+        check_in: formData.checkIn,
+        check_out: formData.checkOut,
+        total_amount: parseFloat(formData.totalAmount),
         status: 'confirmed',
-        createdAt: new Date().toISOString()
+        notes: formData.notes,
+        created_at: new Date().toISOString()
       };
       
       const createdReservation = await reservationService.create(newReservation);
@@ -231,11 +233,11 @@ const Reservations = () => {
                     {/* Guest & Room Info */}
                     <div>
                       <h3 className="font-semibold text-gray-900 mb-1">
-                        {getGuestName(reservation.guestId)}
+{getGuestName(reservation.guest_id)}
                       </h3>
                       <div className="flex items-center text-sm text-gray-600">
                         <ApperIcon name="Home" className="w-4 h-4 mr-1" />
-                        Room {getRoomNumber(reservation.roomId)}
+Room {getRoomNumber(reservation.room_id)}
                       </div>
                     </div>
 
@@ -246,7 +248,7 @@ const Reservations = () => {
                         Check-in
                       </div>
                       <div className="font-medium text-gray-900">
-                        {format(new Date(reservation.checkIn), 'MMM dd, yyyy')}
+{format(new Date(reservation.check_in), 'MMM dd, yyyy')}
                       </div>
                     </div>
 
@@ -256,7 +258,7 @@ const Reservations = () => {
                         Check-out
                       </div>
                       <div className="font-medium text-gray-900">
-                        {format(new Date(reservation.checkOut), 'MMM dd, yyyy')}
+{format(new Date(reservation.check_out), 'MMM dd, yyyy')}
                       </div>
                     </div>
 
@@ -267,7 +269,7 @@ const Reservations = () => {
                         Total Amount
                       </div>
                       <div className="font-bold text-lg text-gray-900">
-                        ${reservation.totalAmount}
+${reservation.total_amount}
                       </div>
                     </div>
                   </div>
@@ -351,10 +353,10 @@ const Reservations = () => {
                       formErrors.guestId ? 'border-red-300 focus:border-red-500' : 'border-gray-200 focus:border-primary'
                     }`}
                   >
-                    <option value="">Select a guest...</option>
+<option value="">Select a guest...</option>
                     {guests.map(guest => (
                       <option key={guest.Id} value={guest.Id}>
-                        {guest.name} - {guest.email}
+                        {guest.Name} - {guest.email}
                       </option>
                     ))}
                   </select>
@@ -376,9 +378,9 @@ const Reservations = () => {
                     }`}
                   >
                     <option value="">Select a room...</option>
-                    {rooms.filter(room => room.status === 'available').map(room => (
+{rooms.filter(room => room.status === 'available').map(room => (
                       <option key={room.Id} value={room.Id}>
-                        Room {room.number} - {room.type} (${room.price}/night)
+                        Room {room.number} - {room.type} (${room.rate}/night)
                       </option>
                     ))}
                   </select>

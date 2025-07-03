@@ -8,6 +8,7 @@ import GuestCard from "@/components/molecules/GuestCard";
 import Error from "@/components/ui/Error";
 import Empty from "@/components/ui/Empty";
 import Loading from "@/components/ui/Loading";
+import Reservations from "@/components/pages/Reservations";
 import roomsData from "@/services/mockData/rooms.json";
 import guestsData from "@/services/mockData/guests.json";
 import reservationsData from "@/services/mockData/reservations.json";
@@ -59,9 +60,9 @@ const handleViewProfile = (guest) => {
     setShowProfileModal(true);
   };
 
-  const getCurrentReservation = (guestId) => {
+const getCurrentReservation = (guestId) => {
     return reservations.find(res => 
-      res.guestId === guestId.toString() && 
+      res.guest_id === guestId.toString() && 
       (res.status === 'checked-in' || res.status === 'confirmed')
     );
   };
@@ -69,8 +70,8 @@ const handleViewProfile = (guest) => {
   const filteredGuests = guests.filter(guest => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
-    return (
-      guest.name.toLowerCase().includes(query) ||
+return (
+      guest.Name.toLowerCase().includes(query) ||
       guest.email.toLowerCase().includes(query) ||
       guest.phone.includes(query)
     );
@@ -150,11 +151,10 @@ const handleViewProfile = (guest) => {
               guest={guest}
               currentReservation={getCurrentReservation(guest.Id)}
               onViewProfile={handleViewProfile}
-            />
+/>
           ))}
-</div>
+        </div>
       )}
-
       {/* Add Guest Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -200,7 +200,11 @@ const handleViewProfile = (guest) => {
 
                 try {
                   setIsSubmitting(true);
-                  await guestService.create(formData);
+await guestService.create({
+                    Name: formData.name,
+                    email: formData.email,
+                    phone: formData.phone
+                  });
                   toast.success('Guest added successfully!');
                   setShowModal(false);
                   setFormData({ name: '', email: '', phone: '' });
@@ -334,7 +338,7 @@ const handleViewProfile = (guest) => {
                       <ApperIcon name="User" size={32} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold">{selectedGuest.name}</h3>
+<h3 className="text-xl font-bold">{selectedGuest.Name}</h3>
                       <p className="text-white text-opacity-90">{selectedGuest.email}</p>
                       <p className="text-white text-opacity-90">{selectedGuest.phone}</p>
                     </div>
@@ -389,19 +393,19 @@ const handleViewProfile = (guest) => {
                   </div>
                   <div className="bg-surface rounded-lg p-4 text-center">
                     <div className="text-2xl font-bold text-secondary">
-                      {reservations.filter(r => r.guestId === selectedGuest.Id.toString()).length}
+{reservations.filter(r => r.guest_id === selectedGuest.Id.toString()).length}
                     </div>
                     <div className="text-sm text-gray-600">Reservations</div>
                   </div>
-                  <div className="bg-surface rounded-lg p-4 text-center">
+<div className="bg-surface rounded-lg p-4 text-center">
                     <div className="text-2xl font-bold text-accent">
-                      {selectedGuest.preferredRoom || 'N/A'}
+                      {selectedGuest.preferredRoom || selectedGuest.preferred_room || 'N/A'}
                     </div>
                     <div className="text-sm text-gray-600">Preferred Room</div>
                   </div>
                   <div className="bg-surface rounded-lg p-4 text-center">
-                    <div className="text-2xl font-bold text-info">
-                      {selectedGuest.loyaltyPoints || 0}
+                    <div className="text-2xl font-bold text-warning">
+                      {selectedGuest.loyaltyPoints || selectedGuest.loyalty_points || 0}
                     </div>
                     <div className="text-sm text-gray-600">Loyalty Points</div>
                   </div>
@@ -441,8 +445,8 @@ const handleViewProfile = (guest) => {
                     Recent Booking History
                   </h4>
                   <div className="space-y-2">
-                    {reservations
-                      .filter(r => r.guestId === selectedGuest.Id.toString())
+{reservations
+                      .filter(r => r.guest_id === selectedGuest.Id.toString())
                       .slice(0, 5)
                       .map((reservation, index) => (
                         <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
@@ -451,9 +455,9 @@ const handleViewProfile = (guest) => {
                               <ApperIcon name="Calendar" size={14} className="text-primary" />
                             </div>
                             <div>
-                              <div className="font-medium text-sm">Room {reservation.roomNumber}</div>
+<div className="font-medium text-sm">Room {reservation.room_id}</div>
                               <div className="text-xs text-gray-600">
-                                {reservation.checkIn} - {reservation.checkOut}
+                                {reservation.check_in} - {reservation.check_out}
                               </div>
                             </div>
                           </div>
@@ -462,7 +466,7 @@ const handleViewProfile = (guest) => {
                           </div>
                         </div>
                       ))}
-                    {reservations.filter(r => r.guestId === selectedGuest.Id.toString()).length === 0 && (
+{reservations.filter(r => r.guest_id === selectedGuest.Id.toString()).length === 0 && (
                       <div className="text-center py-4 text-gray-500">
                         <ApperIcon name="Calendar" size={24} className="mx-auto mb-2 text-gray-400" />
                         <p>No booking history available</p>
@@ -472,17 +476,17 @@ const handleViewProfile = (guest) => {
                 </div>
 
                 {/* Additional Guest Information */}
-                {(selectedGuest.specialRequests || selectedGuest.notes) && (
+{(selectedGuest.special_requests || selectedGuest.notes) && (
                   <div className="bg-white border border-gray-200 rounded-lg p-4">
                     <h4 className="font-semibold text-gray-900 mb-3 flex items-center">
                       <ApperIcon name="FileText" size={20} className="mr-2" />
                       Additional Information
                     </h4>
                     <div className="space-y-2 text-sm">
-                      {selectedGuest.specialRequests && (
+{selectedGuest.special_requests && (
                         <div>
                           <span className="text-gray-600">Special Requests:</span>
-                          <p className="text-gray-900 mt-1">{selectedGuest.specialRequests}</p>
+                          <p className="text-gray-900 mt-1">{selectedGuest.special_requests}</p>
                         </div>
                       )}
                       {selectedGuest.notes && (

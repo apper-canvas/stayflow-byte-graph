@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import Card from '@/components/atoms/Card';
-import Input from '@/components/atoms/Input';
-import Button from '@/components/atoms/Button';
-import Badge from '@/components/atoms/Badge';
-import Loading from '@/components/ui/Loading';
-import Error from '@/components/ui/Error';
-import Empty from '@/components/ui/Empty';
-import ApperIcon from '@/components/ApperIcon';
-import { reservationService } from '@/services/api/reservationService';
-import { guestService } from '@/services/api/guestService';
-import { roomService } from '@/services/api/roomService';
-import { toast } from 'react-toastify';
-import { format } from 'date-fns';
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { toast } from "react-toastify";
+import { format } from "date-fns";
+import ApperIcon from "@/components/ApperIcon";
+import Badge from "@/components/atoms/Badge";
+import Card from "@/components/atoms/Card";
+import Input from "@/components/atoms/Input";
+import Button from "@/components/atoms/Button";
+import Error from "@/components/ui/Error";
+import Empty from "@/components/ui/Empty";
+import Loading from "@/components/ui/Loading";
+import { roomService } from "@/services/api/roomService";
+import { reservationService } from "@/services/api/reservationService";
+import { guestService } from "@/services/api/guestService";
 
 const CheckOut = () => {
   const [reservations, setReservations] = useState([]);
@@ -47,7 +47,7 @@ const CheckOut = () => {
     loadData();
   }, []);
 
-  const getGuestDetails = (guestId) => {
+const getGuestDetails = (guestId) => {
     return guests.find(g => g.Id.toString() === guestId);
   };
 
@@ -61,33 +61,33 @@ const CheckOut = () => {
       await reservationService.update(reservation.Id, { status: 'checked-out' });
       
       // Update room status to cleaning
-      await roomService.updateStatus(parseInt(reservation.roomId), 'cleaning');
+await roomService.updateStatus(parseInt(reservation.room_id), 'cleaning');
       
       // Remove from the list
       setReservations(prev => prev.filter(r => r.Id !== reservation.Id));
       
-      toast.success(`Successfully checked out ${getGuestDetails(reservation.guestId)?.name}`);
+toast.success(`Successfully checked out ${getGuestDetails(reservation.guest_id)?.Name}`);
     } catch (err) {
       toast.error('Failed to check out guest');
     }
   };
 
   const filteredReservations = reservations.filter(reservation => {
-    if (!searchQuery) return true;
-    const guest = getGuestDetails(reservation.guestId);
-    const room = getRoomDetails(reservation.roomId);
+if (!searchQuery) return true;
+    const guest = getGuestDetails(reservation.guest_id);
+    const room = getRoomDetails(reservation.room_id);
     const query = searchQuery.toLowerCase();
     
     return (
-      guest?.name.toLowerCase().includes(query) ||
+      guest?.Name.toLowerCase().includes(query) ||
       guest?.email.toLowerCase().includes(query) ||
       room?.number.includes(query) ||
       reservation.Id.toString().includes(query)
     );
   });
 
-  const todayDepartures = reservations.filter(res => 
-    new Date(res.checkOut).toDateString() === new Date().toDateString()
+const todayDepartures = reservations.filter(res => 
+    new Date(res.check_out).toDateString() === new Date().toDateString()
   );
 
   if (loading) return <Loading type="list" />;
@@ -142,11 +142,11 @@ const CheckOut = () => {
         />
       ) : (
         <div className="space-y-4">
-          {filteredReservations.map((reservation) => {
-            const guest = getGuestDetails(reservation.guestId);
-            const room = getRoomDetails(reservation.roomId);
-            const isToday = new Date(reservation.checkOut).toDateString() === new Date().toDateString();
-            const isOverdue = new Date(reservation.checkOut) < new Date();
+{filteredReservations.map((reservation) => {
+            const guest = getGuestDetails(reservation.guest_id);
+            const room = getRoomDetails(reservation.room_id);
+            const isToday = new Date(reservation.check_out).toDateString() === new Date().toDateString();
+            const isOverdue = new Date(reservation.check_out) < new Date();
             
             return (
               <motion.div
@@ -160,12 +160,12 @@ const CheckOut = () => {
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {/* Guest Info */}
                       <div>
-                        <div className="flex items-center space-x-2 mb-2">
+<div className="flex items-center space-x-2 mb-2">
                           <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white font-semibold">
-                            {guest?.name.charAt(0)}
+                            {guest?.Name.charAt(0)}
                           </div>
                           <div>
-                            <h3 className="font-semibold text-gray-900">{guest?.name}</h3>
+                            <h3 className="font-semibold text-gray-900">{guest?.Name}</h3>
                             <p className="text-sm text-gray-600">{guest?.email}</p>
                           </div>
                         </div>
@@ -195,10 +195,10 @@ const CheckOut = () => {
                           Stay Duration
                         </div>
                         <div className="font-medium text-gray-900 mb-1">
-                          {format(new Date(reservation.checkIn), 'MMM dd')} - {format(new Date(reservation.checkOut), 'MMM dd')}
+{format(new Date(reservation.check_in), 'MMM dd')} - {format(new Date(reservation.check_out), 'MMM dd')}
                         </div>
                         <div className="text-sm text-gray-600">
-                          Total: ${reservation.totalAmount}
+                          Total: ${reservation.total_amount}
                         </div>
                       </div>
                     </div>

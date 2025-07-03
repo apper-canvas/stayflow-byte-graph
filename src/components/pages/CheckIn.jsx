@@ -47,8 +47,7 @@ const CheckIn = () => {
   useEffect(() => {
     loadData();
   }, []);
-
-  const getGuestDetails = (guestId) => {
+const getGuestDetails = (guestId) => {
     return guests.find(g => g.Id.toString() === guestId);
   };
 
@@ -62,12 +61,12 @@ const CheckIn = () => {
       await reservationService.update(reservation.Id, { status: 'checked-in' });
       
       // Update room status
-      await roomService.updateStatus(parseInt(reservation.roomId), 'occupied');
+await roomService.updateStatus(parseInt(reservation.room_id), 'occupied');
       
       // Remove from the list
       setReservations(prev => prev.filter(r => r.Id !== reservation.Id));
       
-      toast.success(`Successfully checked in ${getGuestDetails(reservation.guestId)?.name}`);
+toast.success(`Successfully checked in ${getGuestDetails(reservation.guest_id)?.Name}`);
       setSelectedReservation(null);
     } catch (err) {
       toast.error('Failed to check in guest');
@@ -75,21 +74,21 @@ const CheckIn = () => {
   };
 
   const filteredReservations = reservations.filter(reservation => {
-    if (!searchQuery) return true;
-    const guest = getGuestDetails(reservation.guestId);
-    const room = getRoomDetails(reservation.roomId);
+if (!searchQuery) return true;
+    const guest = getGuestDetails(reservation.guest_id);
+    const room = getRoomDetails(reservation.room_id);
     const query = searchQuery.toLowerCase();
     
     return (
-      guest?.name.toLowerCase().includes(query) ||
+      guest?.Name.toLowerCase().includes(query) ||
       guest?.email.toLowerCase().includes(query) ||
       room?.number.includes(query) ||
       reservation.Id.toString().includes(query)
     );
   });
 
-  const todayArrivals = reservations.filter(res => 
-    new Date(res.checkIn).toDateString() === new Date().toDateString()
+const todayArrivals = reservations.filter(res => 
+    new Date(res.check_in).toDateString() === new Date().toDateString()
   );
 
   if (loading) return <Loading type="list" />;
@@ -144,10 +143,10 @@ const CheckIn = () => {
         />
       ) : (
         <div className="space-y-4">
-          {filteredReservations.map((reservation) => {
-            const guest = getGuestDetails(reservation.guestId);
-            const room = getRoomDetails(reservation.roomId);
-            const isToday = new Date(reservation.checkIn).toDateString() === new Date().toDateString();
+{filteredReservations.map((reservation) => {
+            const guest = getGuestDetails(reservation.guest_id);
+            const room = getRoomDetails(reservation.room_id);
+            const isToday = new Date(reservation.check_in).toDateString() === new Date().toDateString();
             
             return (
               <motion.div
@@ -162,11 +161,11 @@ const CheckIn = () => {
                       {/* Guest Info */}
                       <div>
                         <div className="flex items-center space-x-2 mb-2">
-                          <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white font-semibold">
-                            {guest?.name.charAt(0)}
+<div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white font-semibold">
+                            {guest?.Name.charAt(0)}
                           </div>
                           <div>
-                            <h3 className="font-semibold text-gray-900">{guest?.name}</h3>
+                            <h3 className="font-semibold text-gray-900">{guest?.Name}</h3>
                             <p className="text-sm text-gray-600">{guest?.email}</p>
                           </div>
                         </div>
@@ -195,11 +194,11 @@ const CheckIn = () => {
                           <ApperIcon name="Calendar" className="w-4 h-4 mr-1" />
                           Stay Duration
                         </div>
-                        <div className="font-medium text-gray-900 mb-1">
-                          {format(new Date(reservation.checkIn), 'MMM dd')} - {format(new Date(reservation.checkOut), 'MMM dd')}
+<div className="font-medium text-gray-900 mb-1">
+                          {format(new Date(reservation.check_in), 'MMM dd')} - {format(new Date(reservation.check_out), 'MMM dd')}
                         </div>
                         <div className="text-sm text-gray-600">
-                          Total: ${reservation.totalAmount}
+                          Total: ${reservation.total_amount}
                         </div>
                       </div>
                     </div>

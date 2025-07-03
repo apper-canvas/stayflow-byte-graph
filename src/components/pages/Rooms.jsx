@@ -371,7 +371,7 @@ const handleMaintenanceToggle = async () => {
                     </div>
                   )}
                   
-                  {selectedRoom.lastCleaned && (
+{selectedRoom.lastCleaned && (
                     <div className="flex items-center text-gray-700">
                       <ApperIcon name="Calendar" className="w-5 h-5 mr-3 text-primary" />
                       <span className="font-medium">Last Cleaned:</span>
@@ -786,19 +786,20 @@ const handleMaintenanceToggle = async () => {
                   }
 
                   try {
-                    const newRoomData = {
+const newRoomData = {
+                      Name: formData.number.trim(),
                       number: formData.number.trim(),
                       type: formData.type,
                       floor: formData.floor,
                       rate: parseFloat(formData.rate),
                       capacity: formData.capacity,
-                      beds: formData.beds || null,
+                      beds: formData.beds || "",
                       size: formData.size ? parseInt(formData.size) : null,
-                      view: formData.view || null,
-                      features: formData.features.length > 0 ? formData.features : null,
-                      description: formData.description || null,
+                      view: formData.view || "",
+                      features: formData.features.length > 0 ? formData.features : [],
+                      description: formData.description || "",
                       status: 'available',
-                      lastCleaned: new Date().toISOString().split('T')[0]
+                      last_cleaned: new Date().toISOString().split('T')[0]
                     };
 
                     const createdRoom = await roomService.create(newRoomData);

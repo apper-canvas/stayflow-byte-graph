@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import SearchBar from '@/components/molecules/SearchBar';
-import Button from '@/components/atoms/Button';
-import ApperIcon from '@/components/ApperIcon';
-
+import React, { useEffect, useRef, useState, useContext } from "react";
+import { motion } from "framer-motion";
+import ApperIcon from "@/components/ApperIcon";
+import Button from "@/components/atoms/Button";
+import SearchBar from "@/components/molecules/SearchBar";
+import { AuthContext } from "@/contexts/AuthContext";
 const Header = ({ onMenuToggle, title = 'Dashboard' }) => {
   const [searchValue, setSearchValue] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
@@ -168,8 +168,23 @@ const Header = ({ onMenuToggle, title = 'Dashboard' }) => {
             
             {showNotifications && <NotificationDropdown />}
           </div>
-          <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white font-semibold">
-            A
+          
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white font-semibold">
+              A
+            </div>
+            <Button 
+              variant="ghost" 
+              size="small" 
+              icon="LogOut"
+onClick={() => {
+                const { logout } = useContext(AuthContext);
+                logout();
+              }}
+              className="text-gray-600 hover:text-gray-900"
+            >
+              Logout
+            </Button>
           </div>
         </div>
       </div>
