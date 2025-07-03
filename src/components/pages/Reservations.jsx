@@ -313,9 +313,9 @@ const Reservations = () => {
                     </div>
                   </div>
                 )}
-              </Card>
+</Card>
             </motion.div>
-))}
+          ))}
         </div>
       )}
       {/* New Reservation Modal */}
@@ -481,8 +481,9 @@ const Reservations = () => {
             </form>
           </motion.div>
         </div>
-      )}
-    </motion.div>
+)}
+  </motion.div>
+  );
 };
 
 export default Reservations;
