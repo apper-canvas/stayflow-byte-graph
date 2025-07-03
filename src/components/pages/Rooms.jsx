@@ -1,22 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import RoomCard from '@/components/molecules/RoomCard';
-import Button from '@/components/atoms/Button';
-import Loading from '@/components/ui/Loading';
-import Error from '@/components/ui/Error';
-import Empty from '@/components/ui/Empty';
-import ApperIcon from '@/components/ApperIcon';
-import { roomService } from '@/services/api/roomService';
-import { toast } from 'react-toastify';
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { toast } from "react-toastify";
+import ApperIcon from "@/components/ApperIcon";
+import Button from "@/components/atoms/Button";
+import RoomCard from "@/components/molecules/RoomCard";
+import Error from "@/components/ui/Error";
+import Empty from "@/components/ui/Empty";
+import Loading from "@/components/ui/Loading";
+import { roomService } from "@/services/api/roomService";
 
 const Rooms = () => {
-  const [rooms, setRooms] = useState([]);
+const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
   const [filterType, setFilterType] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('all');
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [showRoomDetails, setShowRoomDetails] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editingRate, setEditingRate] = useState('');
+  const [editingStatus, setEditingStatus] = useState('');
+  
   const loadRooms = async () => {
     try {
       setLoading(true);
@@ -49,11 +53,71 @@ const Rooms = () => {
 const handleViewDetails = (room) => {
     setSelectedRoom(room);
     setShowRoomDetails(true);
+    setEditMode(false);
+    setEditingRate(room.rate.toString());
+    setEditingStatus(room.status);
   };
 
   const closeRoomDetails = () => {
     setShowRoomDetails(false);
     setSelectedRoom(null);
+    setEditMode(false);
+    setEditingRate('');
+    setEditingStatus('');
+  };
+
+  const handleEditRoom = () => {
+    setEditMode(true);
+  };
+
+  const handleSaveChanges = async () => {
+    if (!selectedRoom) return;
+    
+    try {
+      // Update rate if changed
+      if (parseFloat(editingRate) !== selectedRoom.rate) {
+        const newRate = parseFloat(editingRate);
+        if (newRate <= 0) {
+          toast.error('Rate must be greater than 0');
+          return;
+        }
+        // Update room in state
+        setRooms(prev => prev.map(room => 
+          room.Id === selectedRoom.Id ? { ...room, rate: newRate } : room
+        ));
+        setSelectedRoom(prev => ({ ...prev, rate: newRate }));
+        toast.success('Room rate updated successfully');
+      }
+      
+      // Update status if changed
+      if (editingStatus !== selectedRoom.status) {
+        await handleStatusChange(selectedRoom.Id, editingStatus);
+        setSelectedRoom(prev => ({ ...prev, status: editingStatus }));
+      }
+      
+      setEditMode(false);
+    } catch (err) {
+      toast.error('Failed to update room');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditMode(false);
+    setEditingRate(selectedRoom.rate.toString());
+    setEditingStatus(selectedRoom.status);
+  };
+
+  const handleMaintenanceToggle = async () => {
+    if (!selectedRoom) return;
+    
+    try {
+      const newStatus = selectedRoom.status === 'maintenance' ? 'available' : 'maintenance';
+      await handleStatusChange(selectedRoom.Id, newStatus);
+      setSelectedRoom(prev => ({ ...prev, status: newStatus }));
+      setEditingStatus(newStatus);
+    } catch (err) {
+      toast.error('Failed to update maintenance status');
+    }
   };
 
   const filteredRooms = rooms.filter(room => {
@@ -322,23 +386,124 @@ const handleViewDetails = (room) => {
               )}
             </div>
 
+{/* Room Management Section */}
+            <div className="border-t border-gray-200 p-6 bg-surface">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                <ApperIcon name="Settings" className="w-5 h-5 mr-2 text-primary" />
+                Room Management
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                {/* Status Management */}
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-gray-700">Status</label>
+                  <select
+                    value={editingStatus}
+                    onChange={(e) => setEditingStatus(e.target.value)}
+                    disabled={!editMode}
+                    className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-primary focus:outline-none bg-white disabled:bg-gray-50 disabled:cursor-not-allowed"
+                  >
+                    <option value="available">Available</option>
+                    <option value="occupied">Occupied</option>
+                    <option value="cleaning">Cleaning</option>
+                    <option value="maintenance">Maintenance</option>
+                    <option value="reserved">Reserved</option>
+                  </select>
+                </div>
+
+                {/* Rate Management */}
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-gray-700">Rate per Night</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                    <input
+                      type="number"
+                      value={editingRate}
+                      onChange={(e) => setEditingRate(e.target.value)}
+                      disabled={!editMode}
+                      min="0"
+                      step="0.01"
+                      className="w-full pl-8 pr-3 py-2 border-2 border-gray-200 rounded-lg focus:border-primary focus:outline-none bg-white disabled:bg-gray-50 disabled:cursor-not-allowed"
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="flex flex-wrap gap-3 mb-6">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleMaintenanceToggle}
+                  disabled={editMode}
+                  className="flex items-center"
+                >
+                  <ApperIcon 
+                    name={selectedRoom.status === 'maintenance' ? 'CheckCircle' : 'AlertTriangle'} 
+                    className="w-4 h-4 mr-2" 
+                  />
+                  {selectedRoom.status === 'maintenance' ? 'Mark Available' : 'Mark Maintenance'}
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const newStatus = selectedRoom.status === 'cleaning' ? 'available' : 'cleaning';
+                    setEditingStatus(newStatus);
+                    if (!editMode) {
+                      handleStatusChange(selectedRoom.Id, newStatus);
+                      setSelectedRoom(prev => ({ ...prev, status: newStatus }));
+                    }
+                  }}
+                  disabled={editMode}
+                  className="flex items-center"
+                >
+                  <ApperIcon name="Sparkles" className="w-4 h-4 mr-2" />
+                  {selectedRoom.status === 'cleaning' ? 'Cleaning Complete' : 'Schedule Cleaning'}
+                </Button>
+              </div>
+            </div>
+
             {/* Modal Footer */}
-            <div className="flex justify-end space-x-3 p-6 border-t border-gray-200">
-              <Button 
-                variant="outline" 
-                onClick={closeRoomDetails}
-              >
-                Close
-              </Button>
-              <Button 
-                variant="primary"
-                onClick={() => {
-                  // Handle room booking or management action
-                  toast.info(`Room ${selectedRoom.number} management options coming soon`);
-                }}
-              >
-                Manage Room
-              </Button>
+            <div className="flex justify-between items-center p-6 border-t border-gray-200 bg-white">
+              <div className="flex space-x-3">
+                <Button 
+                  variant="outline" 
+                  onClick={closeRoomDetails}
+                  disabled={editMode}
+                >
+                  Close
+                </Button>
+              </div>
+              
+              <div className="flex space-x-3">
+                {editMode ? (
+                  <>
+                    <Button 
+                      variant="outline" 
+                      onClick={handleCancelEdit}
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      variant="primary"
+                      onClick={handleSaveChanges}
+                    >
+                      Save Changes
+                    </Button>
+                  </>
+                ) : (
+                  <Button 
+                    variant="primary"
+                    onClick={handleEditRoom}
+                  >
+                    <ApperIcon name="Edit" className="w-4 h-4 mr-2" />
+                    Edit Room
+                  </Button>
+                )}
+              </div>
             </div>
           </motion.div>
         </div>
