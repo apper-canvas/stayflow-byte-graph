@@ -43,15 +43,23 @@ const loadRooms = async () => {
       setError('');
       const data = await roomService.getAll();
       
-      // Transform MultiPicklist fields from comma-separated strings to arrays
-      const transformedData = data.map(room => ({
-        ...room,
-        features: room.features ? 
-          (Array.isArray(room.features) ? 
-            room.features : 
-            room.features.split(',').map(f => f.trim())
-          ) : []
-      }));
+// Transform MultiPicklist fields from comma-separated strings to arrays
+      const transformedData = data.map(room => {
+        let features = [];
+        
+        if (room.features) {
+          if (Array.isArray(room.features)) {
+            features = room.features;
+          } else if (typeof room.features === 'string') {
+            features = room.features.split(',').map(f => f.trim()).filter(f => f.length > 0);
+          }
+        }
+        
+        return {
+          ...room,
+          features
+        };
+      });
       
       setRooms(transformedData);
     } catch (err) {
