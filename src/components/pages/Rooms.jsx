@@ -107,7 +107,7 @@ const handleViewDetails = (room) => {
     setEditingStatus(selectedRoom.status);
   };
 
-  const handleMaintenanceToggle = async () => {
+const handleMaintenanceToggle = async () => {
     if (!selectedRoom) return;
     
     try {
@@ -117,6 +117,19 @@ const handleViewDetails = (room) => {
       setEditingStatus(newStatus);
     } catch (err) {
       toast.error('Failed to update maintenance status');
+    }
+  };
+
+  const handleCleaningToggle = async () => {
+    if (!selectedRoom) return;
+    
+    try {
+      const newStatus = selectedRoom.status === 'cleaning' ? 'available' : 'cleaning';
+      await handleStatusChange(selectedRoom.Id, newStatus);
+      setSelectedRoom(prev => ({ ...prev, status: newStatus }));
+      setEditingStatus(newStatus);
+    } catch (err) {
+      toast.error('Failed to update cleaning status');
     }
   };
 
@@ -446,17 +459,10 @@ const handleViewDetails = (room) => {
                   {selectedRoom.status === 'maintenance' ? 'Mark Available' : 'Mark Maintenance'}
                 </Button>
                 
-                <Button
+<Button
                   variant="outline"
                   size="sm"
-                  onClick={() => {
-                    const newStatus = selectedRoom.status === 'cleaning' ? 'available' : 'cleaning';
-                    setEditingStatus(newStatus);
-                    if (!editMode) {
-                      handleStatusChange(selectedRoom.Id, newStatus);
-                      setSelectedRoom(prev => ({ ...prev, status: newStatus }));
-                    }
-                  }}
+                  onClick={handleCleaningToggle}
                   disabled={editMode}
                   className="flex items-center"
                 >
