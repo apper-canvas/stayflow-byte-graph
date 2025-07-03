@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import ApperIcon from "@/components/ApperIcon";
 import Button from "@/components/atoms/Button";
 import SearchBar from "@/components/molecules/SearchBar";
-import { AuthContext } from "@/contexts/AuthContext";
+import { AuthContext } from "@/App";
 const Header = ({ onMenuToggle, title = 'Dashboard' }) => {
 const [searchValue, setSearchValue] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
