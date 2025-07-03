@@ -73,7 +73,7 @@ const RoomCard = ({ room, onStatusChange, onViewDetails }) => {
         </div>
 
         <div className="flex space-x-2">
-          <Button 
+<Button 
             variant="outline" 
             size="small" 
             onClick={() => onViewDetails(room)}

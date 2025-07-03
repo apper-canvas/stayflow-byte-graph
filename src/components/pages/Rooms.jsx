@@ -5,6 +5,7 @@ import Button from '@/components/atoms/Button';
 import Loading from '@/components/ui/Loading';
 import Error from '@/components/ui/Error';
 import Empty from '@/components/ui/Empty';
+import ApperIcon from '@/components/ApperIcon';
 import { roomService } from '@/services/api/roomService';
 import { toast } from 'react-toastify';
 
@@ -14,7 +15,8 @@ const Rooms = () => {
   const [error, setError] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterType, setFilterType] = useState('all');
-
+  const [selectedRoom, setSelectedRoom] = useState(null);
+  const [showRoomDetails, setShowRoomDetails] = useState(false);
   const loadRooms = async () => {
     try {
       setLoading(true);
@@ -44,8 +46,14 @@ const Rooms = () => {
     }
   };
 
-  const handleViewDetails = (room) => {
-    toast.info(`Viewing details for Room ${room.number}`);
+const handleViewDetails = (room) => {
+    setSelectedRoom(room);
+    setShowRoomDetails(true);
+  };
+
+  const closeRoomDetails = () => {
+    setShowRoomDetails(false);
+    setSelectedRoom(null);
   };
 
   const filteredRooms = rooms.filter(room => {
@@ -168,6 +176,171 @@ const Rooms = () => {
               onViewDetails={handleViewDetails}
             />
           ))}
+        </div>
+)}
+
+      {/* Room Details Modal */}
+      {showRoomDetails && selectedRoom && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Room {selectedRoom.number}</h2>
+                <p className="text-gray-600 capitalize">{selectedRoom.type} • Floor {selectedRoom.floor}</p>
+              </div>
+              <button
+                onClick={closeRoomDetails}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <ApperIcon name="X" className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 space-y-6">
+              {/* Status and Rate */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-surface p-4 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-600">Status</span>
+                    <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      selectedRoom.status === 'available' ? 'bg-green-100 text-green-800' :
+                      selectedRoom.status === 'occupied' ? 'bg-red-100 text-red-800' :
+                      selectedRoom.status === 'cleaning' ? 'bg-yellow-100 text-yellow-800' :
+                      selectedRoom.status === 'maintenance' ? 'bg-gray-100 text-gray-800' :
+                      'bg-blue-100 text-blue-800'
+                    }`}>
+                      <ApperIcon 
+                        name={selectedRoom.status === 'available' ? 'Check' :
+                              selectedRoom.status === 'occupied' ? 'User' :
+                              selectedRoom.status === 'cleaning' ? 'Sparkles' :
+                              selectedRoom.status === 'maintenance' ? 'Settings' : 'Clock'} 
+                        className="w-3 h-3 mr-1 inline" 
+                      />
+                      {selectedRoom.status}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-surface p-4 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-600">Rate</span>
+                    <div className="flex items-center text-lg font-bold text-secondary">
+                      <ApperIcon name="DollarSign" className="w-5 h-5 mr-1" />
+                      ${selectedRoom.rate}/night
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Room Details */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <div className="flex items-center text-gray-700">
+                    <ApperIcon name="Building" className="w-5 h-5 mr-3 text-primary" />
+                    <span className="font-medium">Floor:</span>
+                    <span className="ml-2">{selectedRoom.floor}</span>
+                  </div>
+                  
+                  {selectedRoom.capacity && (
+                    <div className="flex items-center text-gray-700">
+                      <ApperIcon name="Users" className="w-5 h-5 mr-3 text-primary" />
+                      <span className="font-medium">Capacity:</span>
+                      <span className="ml-2">{selectedRoom.capacity} guests</span>
+                    </div>
+                  )}
+                  
+                  {selectedRoom.beds && (
+                    <div className="flex items-center text-gray-700">
+                      <ApperIcon name="Bed" className="w-5 h-5 mr-3 text-primary" />
+                      <span className="font-medium">Beds:</span>
+                      <span className="ml-2">{selectedRoom.beds}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  {selectedRoom.size && (
+                    <div className="flex items-center text-gray-700">
+                      <ApperIcon name="Ruler" className="w-5 h-5 mr-3 text-primary" />
+                      <span className="font-medium">Size:</span>
+                      <span className="ml-2">{selectedRoom.size} sq ft</span>
+                    </div>
+                  )}
+                  
+                  {selectedRoom.view && (
+                    <div className="flex items-center text-gray-700">
+                      <ApperIcon name="Eye" className="w-5 h-5 mr-3 text-primary" />
+                      <span className="font-medium">View:</span>
+                      <span className="ml-2">{selectedRoom.view}</span>
+                    </div>
+                  )}
+                  
+                  {selectedRoom.lastCleaned && (
+                    <div className="flex items-center text-gray-700">
+                      <ApperIcon name="Calendar" className="w-5 h-5 mr-3 text-primary" />
+                      <span className="font-medium">Last Cleaned:</span>
+                      <span className="ml-2">{new Date(selectedRoom.lastCleaned).toLocaleDateString()}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Features */}
+              {selectedRoom.features && selectedRoom.features.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <ApperIcon name="Star" className="w-5 h-5 mr-2 text-secondary" />
+                    Features & Amenities
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {selectedRoom.features.map((feature, index) => (
+                      <div key={index} className="flex items-center bg-surface px-3 py-2 rounded-md">
+                        <ApperIcon name="Check" className="w-4 h-4 mr-2 text-accent" />
+                        <span className="text-sm text-gray-700">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Description */}
+              {selectedRoom.description && (
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <ApperIcon name="FileText" className="w-5 h-5 mr-2 text-secondary" />
+                    Description
+                  </h3>
+                  <p className="text-gray-700 leading-relaxed">{selectedRoom.description}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex justify-end space-x-3 p-6 border-t border-gray-200">
+              <Button 
+                variant="outline" 
+                onClick={closeRoomDetails}
+              >
+                Close
+              </Button>
+              <Button 
+                variant="primary"
+                onClick={() => {
+                  // Handle room booking or management action
+                  toast.info(`Room ${selectedRoom.number} management options coming soon`);
+                }}
+              >
+                Manage Room
+              </Button>
+            </div>
+          </motion.div>
         </div>
       )}
     </motion.div>
