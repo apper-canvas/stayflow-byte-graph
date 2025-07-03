@@ -403,22 +403,41 @@ const handleMaintenanceToggle = async () => {
                 </div>
               </div>
 
-              {/* Features */}
-              {selectedRoom.features && selectedRoom.features.length > 0 && (
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                    <ApperIcon name="Star" className="w-5 h-5 mr-2 text-secondary" />
-                    Features & Amenities
-                  </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                    {selectedRoom.features.map((feature, index) => (
-                      <div key={index} className="flex items-center bg-surface px-3 py-2 rounded-md">
-                        <ApperIcon name="Check" className="w-4 h-4 mr-2 text-accent" />
-                        <span className="text-sm text-gray-700">{feature}</span>
-                      </div>
-                    ))}
+{/* Features */}
+              {(() => {
+                // Handle both string (MultiPicklist from database) and array (mock data) formats
+                let featuresArray = [];
+                
+                if (selectedRoom.features) {
+                  if (typeof selectedRoom.features === 'string') {
+                    // Convert comma-separated string to array
+                    featuresArray = selectedRoom.features
+                      .split(',')
+                      .map(feature => feature.trim())
+                      .filter(feature => feature.length > 0);
+                  } else if (Array.isArray(selectedRoom.features)) {
+                    // Already an array (mock data format)
+                    featuresArray = selectedRoom.features;
+                  }
+                }
+                
+                return featuresArray.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                      <ApperIcon name="Star" className="w-5 h-5 mr-2 text-secondary" />
+                      Features & Amenities
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {featuresArray.map((feature, index) => (
+                        <div key={index} className="flex items-center bg-surface px-3 py-2 rounded-md">
+                          <ApperIcon name="Check" className="w-4 h-4 mr-2 text-accent" />
+                          <span className="text-sm text-gray-700">{feature}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                );
+              })()}
               )}
 
               {/* Description */}
