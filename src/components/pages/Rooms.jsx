@@ -3,10 +3,13 @@ import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import ApperIcon from "@/components/ApperIcon";
 import Button from "@/components/atoms/Button";
-import RoomCard from "@/components/molecules/RoomCard";
-import Error from "@/components/ui/Error";
 import Empty from "@/components/ui/Empty";
+import Error from "@/components/ui/Error";
 import Loading from "@/components/ui/Loading";
+import RoomCard from "@/components/molecules/RoomCard";
+import roomsData from "@/services/mockData/rooms.json";
+import reservationsData from "@/services/mockData/reservations.json";
+import guestsData from "@/services/mockData/guests.json";
 import { roomService } from "@/services/api/roomService";
 
 const Rooms = () => {
@@ -34,12 +37,23 @@ const Rooms = () => {
     description: ''
   });
   const [formErrors, setFormErrors] = useState({});
-  const loadRooms = async () => {
+const loadRooms = async () => {
     try {
       setLoading(true);
       setError('');
       const data = await roomService.getAll();
-      setRooms(data);
+      
+      // Transform MultiPicklist fields from comma-separated strings to arrays
+      const transformedData = data.map(room => ({
+        ...room,
+        features: room.features ? 
+          (Array.isArray(room.features) ? 
+            room.features : 
+            room.features.split(',').map(f => f.trim())
+          ) : []
+      }));
+      
+      setRooms(transformedData);
     } catch (err) {
       setError(err.message || 'Failed to load rooms');
     } finally {
