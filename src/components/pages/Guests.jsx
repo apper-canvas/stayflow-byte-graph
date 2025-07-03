@@ -1,21 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import GuestCard from '@/components/molecules/GuestCard';
-import SearchBar from '@/components/molecules/SearchBar';
-import Button from '@/components/atoms/Button';
-import Loading from '@/components/ui/Loading';
-import Error from '@/components/ui/Error';
-import Empty from '@/components/ui/Empty';
-import { guestService } from '@/services/api/guestService';
-import { reservationService } from '@/services/api/reservationService';
-import { toast } from 'react-toastify';
+import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { toast } from "react-toastify";
+import ApperIcon from "@/components/ApperIcon";
+import Button from "@/components/atoms/Button";
+import SearchBar from "@/components/molecules/SearchBar";
+import GuestCard from "@/components/molecules/GuestCard";
+import Error from "@/components/ui/Error";
+import Empty from "@/components/ui/Empty";
+import Loading from "@/components/ui/Loading";
+import roomsData from "@/services/mockData/rooms.json";
+import guestsData from "@/services/mockData/guests.json";
+import reservationsData from "@/services/mockData/reservations.json";
+import { reservationService } from "@/services/api/reservationService";
+import { guestService } from "@/services/api/guestService";
 
-const Guests = () => {
+const GuestsPage = () => {
   const [guests, setGuests] = useState([]);
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: ''
+  });
+  const [formErrors, setFormErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const loadData = async () => {
     try {
@@ -76,7 +88,7 @@ const Guests = () => {
           <h1 className="text-3xl font-bold text-gray-900 text-display">Guest Directory</h1>
           <p className="text-gray-600 mt-1">Manage guest profiles and booking history</p>
         </div>
-        <Button variant="primary" icon="UserPlus">
+<Button variant="primary" icon="UserPlus" onClick={() => setShowModal(true)}>
           Add New Guest
         </Button>
       </div>
@@ -139,8 +151,158 @@ const Guests = () => {
           ))}
         </div>
       )}
-    </motion.div>
+</motion.div>
+
+    {/* Add Guest Modal */}
+    {showModal && (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+        >
+          <div className="p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold text-gray-900">Add New Guest</h2>
+              <button
+                onClick={() => {
+                  setShowModal(false);
+                  setFormData({ name: '', email: '', phone: '' });
+                  setFormErrors({});
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <ApperIcon name="X" size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              
+              // Validate form
+              const errors = {};
+              if (!formData.name.trim()) errors.name = 'Name is required';
+              if (!formData.email.trim()) errors.email = 'Email is required';
+              else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+                errors.email = 'Please enter a valid email address';
+              }
+              if (!formData.phone.trim()) errors.phone = 'Phone is required';
+              else if (!/^\+?[\d\s-()]+$/.test(formData.phone)) {
+                errors.phone = 'Please enter a valid phone number';
+              }
+
+              if (Object.keys(errors).length > 0) {
+                setFormErrors(errors);
+                return;
+              }
+
+              try {
+                setIsSubmitting(true);
+                await guestService.create(formData);
+                toast.success('Guest added successfully!');
+                setShowModal(false);
+                setFormData({ name: '', email: '', phone: '' });
+                setFormErrors({});
+                await loadData(); // Refresh the guest list
+              } catch (error) {
+                toast.error(error.message || 'Failed to add guest');
+              } finally {
+                setIsSubmitting(false);
+              }
+            }}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => {
+                      setFormData({ ...formData, name: e.target.value });
+                      if (formErrors.name) setFormErrors({ ...formErrors, name: '' });
+                    }}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary ${
+                      formErrors.name ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Enter guest's full name"
+                  />
+                  {formErrors.name && (
+                    <p className="text-red-500 text-sm mt-1">{formErrors.name}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => {
+                      setFormData({ ...formData, email: e.target.value });
+                      if (formErrors.email) setFormErrors({ ...formErrors, email: '' });
+                    }}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary ${
+                      formErrors.email ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Enter email address"
+                  />
+                  {formErrors.email && (
+                    <p className="text-red-500 text-sm mt-1">{formErrors.email}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Phone Number *
+                  </label>
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => {
+                      setFormData({ ...formData, phone: e.target.value });
+                      if (formErrors.phone) setFormErrors({ ...formErrors, phone: '' });
+                    }}
+                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary ${
+                      formErrors.phone ? 'border-red-500' : 'border-gray-300'
+                    }`}
+                    placeholder="Enter phone number"
+                  />
+                  {formErrors.phone && (
+                    <p className="text-red-500 text-sm mt-1">{formErrors.phone}</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3 mt-6">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setShowModal(false);
+                    setFormData({ name: '', email: '', phone: '' });
+                    setFormErrors({});
+                  }}
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? 'Adding...' : 'Add Guest'}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </motion.div>
+      </div>
+    )}
+  </motion.div>
   );
 };
 
-export default Guests;
+export default GuestsPage;
