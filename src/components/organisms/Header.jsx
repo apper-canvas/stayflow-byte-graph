@@ -5,10 +5,10 @@ import Button from "@/components/atoms/Button";
 import SearchBar from "@/components/molecules/SearchBar";
 import { AuthContext } from "@/contexts/AuthContext";
 const Header = ({ onMenuToggle, title = 'Dashboard' }) => {
-  const [searchValue, setSearchValue] = useState('');
+const [searchValue, setSearchValue] = useState('');
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationRef = useRef(null);
-
+  const { logout } = useContext(AuthContext);
   // Sample notifications data
   const notifications = [
     {
@@ -174,11 +174,10 @@ const Header = ({ onMenuToggle, title = 'Dashboard' }) => {
               A
             </div>
             <Button 
-              variant="ghost" 
+variant="ghost" 
               size="small" 
               icon="LogOut"
-onClick={() => {
-                const { logout } = useContext(AuthContext);
+              onClick={() => {
                 logout();
               }}
               className="text-gray-600 hover:text-gray-900"
